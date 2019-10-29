@@ -1,0 +1,15 @@
+{
+    "request": {
+        "rcp_id": "1",
+        "rcp_name": "Vaskar Sarma",
+        "rcp_route": "DXB-DEL"
+    },
+    "response": {
+        "status": "success",
+        "data": {
+            "rcp_id": "1",
+            "rcp_name": "Vaskar Sarma",
+            "rcp_route": "DXB-DEL"
+        }
+    }
+}

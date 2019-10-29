@@ -1,0 +1,27 @@
+{
+  "name": "recipeapi",
+  "version": "1.0.0",
+  "description": "Recipe Bank API",
+  "main": "server.js",
+  "scripts": {
+    "test": "jest --forceExit",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "author": "Vaskar Sarma <Vaskarsarma@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "@koa/cors": "^3.0.0",
+    "koa": "^2.8.1",
+    "koa-bodyparser": "^4.2.1",
+    "koa-logger": "^3.2.1",
+    "koa-router": "^7.4.0",
+    "mongodb": "^3.3.3",
+    "mongoose": "^5.7.7",
+    "nodemon": "^1.19.2"
+  },
+  "devDependencies": {
+    "jest": "^24.9.0",
+    "supertest": "^4.0.2"
+  }
+}
