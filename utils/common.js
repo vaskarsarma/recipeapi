@@ -1,18 +1,19 @@
 const recipe = require("../models/recipe");
+const _cache = require("../utils/cache");
 
-exports.getData= function() {
+exports.getData = function (cachekey) {
     return new Promise((resolve, rej) => {
         recipe.find().exec((err, res) => {
             if (err) {
                 return rej(err)
             } else {
-                return resolve(JSON.stringify(res))
+                return resolve(JSON.stringify(res));
             }
         });
     });
 }
 
-exports.searchbyrcpname= function(name) {
+exports.searchbyrcpname = function (cachekey, name) {
     return new Promise((resolve, rej) => {
         let regex = new RegExp(name, "i"), query = { rcp_name: regex };
         recipe.find(query).exec((err, res) => {
@@ -25,7 +26,7 @@ exports.searchbyrcpname= function(name) {
     });
 }
 
-exports.searchbyrcproute= function(route) {
+exports.searchbyrcproute = function (cachekey, route) {
     return new Promise((resolve, rej) => {
         let query = { rcp_route: route };
         recipe.find(query).exec((err, res) => {
@@ -38,7 +39,7 @@ exports.searchbyrcproute= function(route) {
     });
 }
 
-exports.searchrecipe= function(query) {
+exports.searchrecipe = function (cachekey, query) {
     return new Promise((resolve, rej) => {
         recipe.find(query).exec((err, res) => {
             if (err) {

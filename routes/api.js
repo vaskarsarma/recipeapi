@@ -4,49 +4,80 @@ const router = Router({
 });
 const recipe = require("../models/recipe");
 const commonutils = require("../utils/common");
+const _cache = require("../utils/cache");
 
 var ObjectId = require('mongodb').ObjectID;
 
+var cachekey = "recipe_";
+
 // Get Recipe 
 router.get("/", async ctx => {
-    ctx.body = await commonutils.getData();
+    var data = _cache.get(cachekey);
+
+    if (!data) {
+        console.log("not cached");
+        data = await commonutils.getData(cachekey);
+        _cache.set(cachekey, data);
+    }
+
+    ctx.body = data;
 });
 
 // Get Recipe by name 
-router.get("/search/:name", async ctx => {
+router.get("/:name", async ctx => {
     let r_name = ctx.params.name;
-    ctx.body = await commonutils.searchbyrcpname(r_name);
+    cachekey = "recipe_" + r_name;
+
+    var data = _cache.get(cachekey);
+
+    if (!data) {
+        console.log("not cached");
+        data = await commonutils.searchbyrcpname(cachekey, r_name);
+        _cache.set(cachekey, data);
+    }
+
+    ctx.body = data;
 });
 
 // Get Recipe by route
-router.get("/search/:origin/:dest", async ctx => {
+router.get("/:origin/:dest", async ctx => {
     let r_route = (ctx.params.origin && ctx.params.dest) ? ctx.params.origin + "-" + ctx.params.dest : "";
+
     if (r_route) {
         console.log(r_route.toString());
-        ctx.body = await commonutils.searchbyrcproute(r_route.toUpperCase());
+        cachekey = "recipe_" + r_route;
+        var data = _cache.get(cachekey);
+
+        if (!data) {
+            console.log("not cached");
+            data = await commonutils.searchbyrcproute(cachekey, r_route.toUpperCase());
+            _cache.set(cachekey, data);
+        }
+
+        ctx.body = data;
     }
     else
         ctx.body = "Invalid query";
 });
 
 // Get Recipe by any post query
-router.post("/search/", async ctx => {
+router.post("/", async ctx => {
     try {
         var { rcp_name, rcp_route } = ctx.request.body;
 
-        var query = {
-            $and: [
-                {
-                    rcp_name: { $regex: rcp_name, $options: 'i' }
-                },
-                {
-                    rcp_route: { $regex: rcp_route, $options: 'i' }
-                }
-            ]
+        var query = { $and: [{ rcp_name: { $regex: rcp_name, $options: 'i' } }, { rcp_route: { $regex: rcp_route, $options: 'i' } }] }
+
+        cachekey = "recipe_" + rcp_name + "_" + rcp_route;
+        var data = _cache.get(cachekey);
+
+        if (!data) {
+            console.log("Not Cached");
+            data = await commonutils.searchrecipe(cachekey, query);
+            _cache.set(cachekey, data);
         }
-        
-        console.log(query.toString());
-        ctx.body = await commonutils.searchrecipe(query);
+
+        ctx.body = data;
+
     } catch (err) {
         console.log(err);
         ctx.body = {
@@ -60,6 +91,8 @@ router.post("/search/", async ctx => {
 router.post("/add", ctx => {
     var rcp = new recipe(ctx.request.body);
 
+    console.log(rcp);
+
     //TODO - Validate recipe
 
     // Saving it to the database.
@@ -71,6 +104,11 @@ router.post("/add", ctx => {
             }
         }
         else {
+            if ((_cache.keys()).length > 0) {
+                console.log("Cache cleared");
+                _cache.reset(); //Clear Cache
+            }
+
             ctx.body = {
                 status: "success",
                 data: res
@@ -94,13 +132,17 @@ router.put('/edit/:id', (ctx) => {
         var query = { '_id': new ObjectId(ctx.params.id) };
         recipe.findByIdAndUpdate(query, rcp, { upsert: false }, function (err, res) {
             if (err) {
-                console.log("Vaskar 1 ", err);
                 ctx.body = {
                     status: "error",
                     error: "Failed to update!!!Please Try again."
                 }
             }
             else {
+                if ((_cache.keys()).length > 0) {
+                    console.log("Cache cleared");
+                    _cache.reset(); //Clear Cache
+                }
+
                 console.log("done", res);
                 ctx.body = {
                     status: "success",

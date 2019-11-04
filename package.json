@@ -16,6 +16,7 @@
     "koa-bodyparser": "^4.2.1",
     "koa-logger": "^3.2.1",
     "koa-router": "^7.4.0",
+    "lru-cache": "^5.1.1",
     "mongodb": "^3.3.3",
     "mongoose": "^5.7.7",
     "nodemon": "^1.19.2"
