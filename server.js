@@ -10,6 +10,8 @@ app.use(bodyParser());
 app.use(cors());
 app.use(logger());
 
+const port=process.env.PORT || 3001
+
 //Error Handling
 app.use(async (ctx, next) => {
 	try {
@@ -25,7 +27,7 @@ const recipeApi = require('./routes/api');
 app.use(recipeApi.routes());
 
 // Listining Port
-app.listen(3001);
+app.listen(port);
 
 module.exports = app;
-console.log("Starting server at port 3001")
+console.log(`Starting server at port ${port}`);
